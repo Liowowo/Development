@@ -1,9 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#include <stdio.h> // for "printf()"
+#include <stdlib.h> // for "atoi()"
+#include <string.h> // for "memset()"
+#include <unistd.h> // for "close()"
+#include <sys/socket.h> // for "socket(), connect(), send() and recv()"
+#include <arpa/inet.h> //for "sockaddr_in and inet_addr()"
 
 #define MAXSIZE 1024
 
@@ -32,11 +32,11 @@ void exchange (int client_socket){
 	}
 }
 
-int main() {
+int main(int argc, char *argv[]){
 
 	//Configuration of IP address & port number
-	char *ip = "127.0.0.1";
-	int port = 4444;
+	int port = atoi(argv[1]);
+	char *ip = argv[2];
 
 	int n;
 
@@ -63,7 +63,7 @@ int main() {
 		perror("[-] Bind error");
 		exit(1);
 	}
-	printf("[+] Bind to the port number: %d \n", port);
+	printf("[+] Bind to the port number : %d and IP address : %s \n", port, ip);
 
 	listen(server_socket,5); 
 	printf("listening... \n");

@@ -7,11 +7,11 @@
 
 //void exchange (int client_socket){
 
-int main(void){
+int main(int argc, char *argv[]){
 
 	//Configuration of IP address & port number
-	char *ip = "127.0.0.1";
-	int port = 4444;
+	int port = atoi(argv[1]);
+	char *ip = argv[2];
 
 	int client_socket;
 
