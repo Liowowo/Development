@@ -9,25 +9,35 @@
 
 void exchange (int client_socket){
 
+	char cmd[MAXSIZE];
 	char buffer[MAXSIZE];
-	char string_msg[] = "";
+	char strings_msg[] = "";
 	FILE *output;
+	int i;
 
 	// Loop for exchange between Client & Server
-	while(1){
+	for(;;){
 
-		bzero(buffer,MAXSIZE);
+		bzero(cmd,MAXSIZE);
 
-		// Read and convert the socket from the client
-		int bytes_of_socket = recv(client_socket, buffer, sizeof(buffer),0);
-		strncpy(string_msg, buffer, bytes_of_socket);
-		string_msg[bytes_of_socket] = '\0';
+		// Receve and convert the socket from the client
+		int bytes_of_socket  = recv(client_socket, cmd, sizeof(cmd),0);
+		strncpy(strings_msg, cmd, bytes_of_socket);
+		strings_msg[bytes_of_socket] = '\0';
+		printf("%s \n",strings_msg );
 
 		// Execute Linux command & create an output of this command
-		output = popen (string_msg, "r");
-		if (output = NULL){
-			printf("Failed to run command, try again ! \n");
-			exit(1);
+		output = popen (strings_msg, "r");
+		if (output == NULL){
+			fputs("Failed to execute command, try again ! \n", stderr);
+		}
+
+		else {
+			int count = 1;
+			while (fgets(buffer, MAXSIZE-1, output) != NULL){
+				printf("OUTPUT[%d] : %s", count, buffer);
+				count ++;
+			}
 		}
 	}
 }
@@ -63,7 +73,7 @@ int main(int argc, char *argv[]){
 		perror("[-] Bind error");
 		exit(1);
 	}
-	printf("[+] Bind to the port number : %d and IP address : %s \n", port, ip);
+	printf("[+] Bind to port number: %d and IP address: %s \n", port, ip);
 
 	listen(server_socket,5); 
 	printf("listening... \n");
