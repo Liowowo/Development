@@ -16,7 +16,7 @@ void exchange (int client_socket){
 	int i;
 
 	// Loop for exchange between Client & Server
-	for(;;){
+	while(1){
 
 		bzero(cmd,MAXSIZE);
 
@@ -24,19 +24,18 @@ void exchange (int client_socket){
 		int bytes_of_socket  = recv(client_socket, cmd, sizeof(cmd),0);
 		strncpy(strings_msg, cmd, bytes_of_socket);
 		strings_msg[bytes_of_socket] = '\0';
-		printf("%s \n",strings_msg );
 
 		// Execute Linux command & create an output of this command
 		output = popen (strings_msg, "r");
 		if (output == NULL){
+			printf("Failed");
 			fputs("Failed to execute command, try again ! \n", stderr);
+
 		}
 
 		else {
-			int count = 1;
 			while (fgets(buffer, MAXSIZE-1, output) != NULL){
-				printf("OUTPUT[%d] : %s", count, buffer);
-				count ++;
+				send(client_socket, buffer, strlen(buffer), 0);
 			}
 		}
 	}
@@ -48,12 +47,14 @@ int main(int argc, char *argv[]){
 	int port = atoi(argv[1]);
 	char *ip = argv[2];
 
-	int n;
-
-	int server_socket, client_socket;
+	int server_socket, client_socket, binding;
 
 	struct sockaddr_in server_addr, client_addr;
-	socklen_t addr_size;
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(port);
+	server_addr.sin_addr.s_addr = inet_addr(ip);
+
+	int n, len;
 	
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_socket < 0){
@@ -61,26 +62,36 @@ int main(int argc, char *argv[]){
 		exit (1);
 	}
 
-	memset(&server_addr, '\0', sizeof(server_addr));
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = port;
-	server_addr.sin_addr.s_addr = inet_addr(ip);
-
 	printf("[+] Server started. \n");
 
-	n = bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
-	if (n < 0){
+	binding = bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
+
+	if (binding < 0){
 		perror("[-] Bind error");
 		exit(1);
 	}
-	printf("[+] Bind to port number: %d and IP address: %s \n", port, ip);
 
-	listen(server_socket,5); 
-	printf("listening... \n");
+	else {
+		printf("[+] Bind to port number: %d | IP address: %s \n", port, ip);
+		n = listen(server_socket,1);
 
-	addr_size = sizeof(client_addr);
-	client_socket = accept(server_socket, (struct sockaddr*)&client_addr,&addr_size);
-	printf("[+] Client connected !\n");
+		if(n<0){
+			printf("Error during listen()\n");
+			exit(0);
+		}
+
+		printf("listening... \n");
+
+		len = sizeof(client_addr);
+		client_socket = accept(server_socket, (struct sockaddr*)&client_addr,&len);
+
+		if(client_socket < 0){
+			printf("Error during accept()\n");
+			exit(0);
+		}
+
+		printf("[+] Client connected from %s !",inet_ntoa(client_addr.sin_addr));
+	}
 	
 	exchange(client_socket);
 

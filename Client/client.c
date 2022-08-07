@@ -10,20 +10,36 @@
 void exchange (int client_socket){
 
 	char cmd[MAXSIZE];
-	char string_msg[] = "";
+	char strings_msg[] = "";
 	FILE *output;
 	int i;
 
 	// Loop for exchange between Client & Server
-	for(;;){
+	while(1){
 
 		bzero(cmd, MAXSIZE);
 
-		printf("Enter the command : ");
+		printf("[+] Enter a command : ");
 		fgets(cmd, MAXSIZE, stdin);
+		printf("\n");
+
+		if (cmd == NULL){
+			fputs("Failed to execute command, try again ! \n", stderr);
+		}
+
+		if (cmd == "exit"){
+			printf("[+] You stop the connection with the server\n");
+			close(client_socket);
+			exit(0);
+		}
 		
-		printf("test : %s", cmd);
-		send (client_socket, cmd, strlen(buffer), 0);
+		send (client_socket, cmd, strlen(cmd), 0);
+		sleep(0.5);
+
+		int bytes_of_socket  = recv(client_socket, cmd, sizeof(cmd),0);
+		strncpy(strings_msg, cmd, bytes_of_socket);
+		strings_msg[bytes_of_socket] = '\0';
+		printf("%s \n",strings_msg );
 
 	}
 }
@@ -34,10 +50,12 @@ int main(int argc, char *argv[]){
 	int port = atoi(argv[1]);
 	char *ip = argv[2];
 
-	int client_socket;
+	int client_socket, client_state;
 
 	struct sockaddr_in addr;
-	socklen_t addr_size;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = inet_addr(ip);
 	
 	client_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (client_socket < 0){
@@ -45,12 +63,11 @@ int main(int argc, char *argv[]){
 		exit (1);
 	}
 
-	memset(&addr, '\0', sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = port;
-	addr.sin_addr.s_addr = inet_addr(ip);
+	if ((client_state = connect(client_socket, (struct sockaddr*)&addr, sizeof(addr))) < 0) {
+		printf("[-] Connection Failed ! Wrong port number or IP address \n");
+		return -1;
+	}
 
-	connect(client_socket, (struct sockaddr*)&addr, sizeof(addr));
 	printf("[+] Connected to the server.\n");
 
 	exchange(client_socket);
