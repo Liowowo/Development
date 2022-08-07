@@ -5,7 +5,7 @@
 #include <sys/socket.h> // for "socket(), connect(), send() and recv()"
 #include <arpa/inet.h> //for "sockaddr_in and inet_addr()"
 
-#define MAXSIZE 4096
+#define MAXSIZE 9192
 
 int main(int argc, char *argv[]){
 

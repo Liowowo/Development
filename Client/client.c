@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define MAXSIZE 4096
+#define MAXSIZE 9192
 
 int main(int argc, char *argv[]){
 
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]){
 		else {
 			printf("\n");
 			send (client_socket, cmd, strlen(cmd), 0);
-			sleep(5);
+			sleep(1);
 
 			int bytes_of_socket  = recv(client_socket, cmd, sizeof(cmd),0);
 			strncpy(strings_msg, cmd, bytes_of_socket);
