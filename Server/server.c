@@ -16,7 +16,7 @@ void exchange (int client_socket){
 	int i;
 
 	// Loop for exchange between Client & Server
-	while(1){
+	for(;;){
 
 		bzero(cmd,MAXSIZE);
 
@@ -50,10 +50,6 @@ int main(int argc, char *argv[]){
 	int server_socket, client_socket, binding;
 
 	struct sockaddr_in server_addr, client_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(port);
-	server_addr.sin_addr.s_addr = inet_addr(ip);
-
 	int n, len;
 	
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -61,6 +57,10 @@ int main(int argc, char *argv[]){
 		perror ("[-] Socket error");
 		exit (1);
 	}
+
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(port);
+	server_addr.sin_addr.s_addr = inet_addr(ip);
 
 	printf("[+] Server started. \n");
 
@@ -70,7 +70,6 @@ int main(int argc, char *argv[]){
 		perror("[-] Bind error");
 		exit(1);
 	}
-
 	else {
 		printf("[+] Bind to port number: %d | IP address: %s \n", port, ip);
 		n = listen(server_socket,1);
@@ -90,7 +89,7 @@ int main(int argc, char *argv[]){
 			exit(0);
 		}
 
-		printf("[+] Client connected from %s !",inet_ntoa(client_addr.sin_addr));
+		printf("[+] Client connected from %s ! \n",inet_ntoa(client_addr.sin_addr));
 	}
 	
 	exchange(client_socket);

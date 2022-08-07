@@ -15,7 +15,7 @@ void exchange (int client_socket){
 	int i;
 
 	// Loop for exchange between Client & Server
-	while(1){
+	for(;;){
 
 		bzero(cmd, MAXSIZE);
 
@@ -25,12 +25,6 @@ void exchange (int client_socket){
 
 		if (cmd == NULL){
 			fputs("Failed to execute command, try again ! \n", stderr);
-		}
-
-		if (cmd == "exit"){
-			printf("[+] You stop the connection with the server\n");
-			close(client_socket);
-			exit(0);
 		}
 		
 		send (client_socket, cmd, strlen(cmd), 0);
