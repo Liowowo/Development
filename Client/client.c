@@ -14,9 +14,7 @@ int main(int argc, char *argv[]){
 	char *ip = argv[2];
 
 	char cmd[MAXSIZE];
-	char strings_msg[] = "";
-	FILE *output;
-	char quit[] = "quit";
+	char strings_msg[MAXSIZE+1];
 
 	int client_socket, client_state;
 
@@ -51,7 +49,7 @@ int main(int argc, char *argv[]){
 
 		printf("[+] Enter a command : ");
 
-		if (strcmp(fgets(cmd, MAXSIZE, stdin),quit) == 0){
+		if (strcmp(fgets(cmd, MAXSIZE, stdin),"quit\n") == 0){
 			printf("[+} Connection with the server closed !\n");
 			close(client_socket);
 			exit(0);
