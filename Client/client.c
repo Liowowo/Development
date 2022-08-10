@@ -24,6 +24,7 @@ int main(int argc, char *argv[]){
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = inet_addr(ip);
 
+	// Declaration of variables used the timeout of the functin recv()
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
@@ -71,6 +72,7 @@ int main(int argc, char *argv[]){
 			send (client_socket, cmd, strlen(cmd), 0);
 			sleep(1);
 
+			//set a timeout on the recv request and stop the programm if command is wrong
 			setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
 			// Receive the result of the command
