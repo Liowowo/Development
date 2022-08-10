@@ -24,6 +24,10 @@ int main(int argc, char *argv[]){
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = inet_addr(ip);
 
+	struct timeval tv;
+	tv.tv_sec = 2;
+	tv.tv_usec = 0;
+
 	// Check if the user put the arguments
 	if (argc != 3) {
          printf("You need to specify port number and IP address ! \n");
@@ -54,7 +58,7 @@ int main(int argc, char *argv[]){
 
 		printf("[+] Enter a command : ");
 
-		// Check if the command = at "quit" for stopping and closing the connection
+		// Check if the command = "quit" for stopping and closing the connection
 		if (strcmp(fgets(cmd, MAXSIZE, stdin),"quit\n") == 0){
 			printf("[+] Connection with the server closed !\n");
 			close(client_socket);
@@ -66,6 +70,8 @@ int main(int argc, char *argv[]){
 			printf("\n");
 			send (client_socket, cmd, strlen(cmd), 0);
 			sleep(1);
+
+			setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
 			// Receive the result of the command
 			int bytes_of_socket  = recv(client_socket, cmd, sizeof(cmd),0);
